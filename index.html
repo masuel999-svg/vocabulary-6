@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألعاب تعلم الإنجليزية - الصحة وأعضاء الجسم</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            min-height: 100vh;
+        }
+        .font-english {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+        .game-card {
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .game-card:hover {
+            transform: translateY(-6px) scale(1.02);
+        }
+        .pulse-btn {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col justify-between min-h-screen">
+
+    <!-- TOP HEADER / NAVBAR -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-sky-100 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showDashboard()">
+                <div class="w-11 h-11 bg-gradient-to-tr from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-md shadow-sky-200">
+                    <i class="fa-solid font-english fa-heart-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-slate-800 leading-tight">عالم الصحة والجسم</h1>
+                    <p class="text-xs text-sky-600 font-medium">10 ألعاب تفاعلية لحفظ الكلمات الإنجليزية</p>
+                </div>
+            </div>
+
+            <!-- Global Score & Dashboard Button -->
+            <div class="flex items-center gap-4">
+                <div class="bg-amber-50 border border-amber-200 rounded-full px-4 py-1.5 flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-star text-amber-500 text-lg"></i>
+                    <span id="global-stars" class="font-black text-amber-700 text-lg font-english">0</span>
+                    <span class="text-xs text-amber-600 font-bold">نجمة</span>
+                </div>
+                <button id="nav-dash-btn" onclick="showDashboard()" class="hidden bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-md shadow-sky-200">
+                    <i class="fa-solid fa-grid-2"></i> القائمة الرئيسية
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- DASHBOARD (GAME SELECTOR) -->
+        <section id="dashboard" class="space-y-6">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-3 inline-block">مرحباً بك يا بطل! 🌟</span>
+                    <h2 class="text-2xl sm:text-4xl font-black mb-3">تعلم مفردات الصحة والجسم باللغة الإنجليزية</h2>
+                    <p class="text-sky-100 text-sm sm:text-base leading-relaxed mb-4">اختر إحدى الألعاب الـ 10 التفاعلية للتدرب على المفردات، الاستماع للنطق الصحيح، وجمع النجوم!</p>
+                </div>
+                <i class="fa-solid fa-user-doctor absolute -bottom-6 left-4 text-9xl text-white/10 pointer-events-none"></i>
+            </div>
+
+            <!-- Vocab Quick Reference Banner -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-sky-500"></i> كلمات الدرس الأساسية
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="speak('knee')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs px-2.5 py-1.5 rounded-lg border border-sky-200 font-bold font-english flex items-center gap-1">knee 🔊</button>
+                    <button onclick="speak('finger')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs px-2.5 py-1.5 rounded-lg border border-sky-200 font-bold font-english flex items-center gap-1">finger 🔊</button>
+                    <button onclick="speak('elbow')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs px-2.5 py-1.5 rounded-lg border border-sky-200 font-bold font-english flex items-center gap-1">elbow 🔊</button>
+                    <button onclick="speak('toe')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs px-2.5 py-1.5 rounded-lg border border-sky-200 font-bold font-english flex items-center gap-1">toe 🔊</button>
+                    <button onclick="speak('hand')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs px-2.5 py-1.5 rounded-lg border border-sky-200 font-bold font-english flex items-center gap-1">hand 🔊</button>
+                    <button onclick="speak('soap')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1.5 rounded-lg border border-emerald-200 font-bold font-english flex items-center gap-1">soap 🔊</button>
+                    <button onclick="speak('water')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1.5 rounded-lg border border-emerald-200 font-bold font-english flex items-center gap-1">water 🔊</button>
+                    <button onclick="speak('pharmacy')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1.5 rounded-lg border border-emerald-200 font-bold font-english flex items-center gap-1">pharmacy 🔊</button>
+                    <button onclick="speak('medicine')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1.5 rounded-lg border border-emerald-200 font-bold font-english flex items-center gap-1">medicine 🔊</button>
+                    <button onclick="speak('bandage')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1.5 rounded-lg border border-emerald-200 font-bold font-english flex items-center gap-1">bandage 🔊</button>
+                    <button onclick="speak('fell over')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs px-2.5 py-1.5 rounded-lg border border-purple-200 font-bold font-english flex items-center gap-1">fell over 🔊</button>
+                    <button onclick="speak('knife')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs px-2.5 py-1.5 rounded-lg border border-purple-200 font-bold font-english flex items-center gap-1">knife 🔊</button>
+                    <button onclick="speak('sore')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs px-2.5 py-1.5 rounded-lg border border-purple-200 font-bold font-english flex items-center gap-1">sore 🔊</button>
+                    <button onclick="speak('broken')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs px-2.5 py-1.5 rounded-lg border border-purple-200 font-bold font-english flex items-center gap-1">broken 🔊</button>
+                    <button onclick="speak('burned')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs px-2.5 py-1.5 rounded-lg border border-purple-200 font-bold font-english flex items-center gap-1">burned 🔊</button>
+                </div>
+            </div>
+
+            <!-- Games Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="games-grid">
+                <!-- Game cards generated via JS -->
+            </div>
+        </section>
+
+        <!-- GAME PLAY AREA CONTAINER -->
+        <section id="game-container" class="hidden bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-xl relative min-h-[500px]">
+            <!-- Dynamic Content Injected Here -->
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500">
+        <p>تطبيق ألعاب تفاعلية لتعليم اللغة الإنجليزية للأطفال © 2026 - مخصص لدرس الصحة وأعضاء الجسم</p>
+    </footer>
+
+    <!-- JAVASCRIPT CODE -->
+    <script>
+        // Audio Synthesizer (Text-To-Speech)
+        function speak(text, rate = 0.9) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop current speaking
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = rate;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Web Audio API Sound Effects (No external assets required)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSfx(type) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2); // A5
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'win') {
+                    const notes = [440, 554.37, 659.25, 880];
+                    notes.forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.value = freq;
+                        g.gain.setValueAtTime(0.15, audioCtx.currentTime + idx * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + idx * 0.1 + 0.25);
+                        o.start(audioCtx.currentTime + idx * 0.1);
+                        o.stop(audioCtx.currentTime + idx * 0.1 + 0.25);
+                    });
+                }
+            } catch (e) {
+                console.log('Audio Context Error', e);
+            }
+        }
+
+        // Global State
+        let globalStars = parseInt(localStorage.getItem('vocab_stars') || '0');
+        document.getElementById('global-stars').textContent = globalStars;
+
+        function addStars(num) {
+            globalStars += num;
+            localStorage.setItem('vocab_stars', globalStars);
+            document.getElementById('global-stars').textContent = globalStars;
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
+            playSfx('correct');
+        }
+
+        // Games Meta Data
+        const gamesList = [
+            { id: 1, title: "1. التمثيل والإشارات", subtitle: "Mime Quiz", icon: "fa-masks-theater", color: "from-pink-500 to-rose-500" },
+            { id: 2, title: "2. الطبيب والإنقاذ", subtitle: "Doctor Match", icon: "fa-user-doctor", color: "from-blue-500 to-cyan-500" },
+            { id: 3, title: "3. لعبة الذاكرة", subtitle: "Memory Game", icon: "fa-brain", color: "from-purple-500 to-indigo-500" },
+            { id: 4, title: "4. عنصر مفقود؟", subtitle: "What's Missing?", icon: "fa-eye-slash", color: "from-amber-500 to-orange-500" },
+            { id: 5, title: "5. البحث عن الكلمات", subtitle: "Word Search", icon: "fa-magnifying-glass", color: "from-emerald-500 to-teal-500" },
+            { id: 6, title: "6. أخطاء الطبيب", subtitle: "Doctor's Mistake", icon: "fa-stethoscope", color: "from-red-500 to-pink-600" },
+            { id: 7, title: "7. إنقاذ الكلمة", subtitle: "Word Rescue", icon: "fa-life-ring", color: "from-violet-500 to-purple-600" },
+            { id: 8, title: "8. لعبة سيمون يقول", subtitle: "Simon Says", icon: "fa-hand-point-up", color: "from-sky-500 to-blue-600" },
+            { id: 9, title: "9. بناء الجملة", subtitle: "Sentence Builder", icon: "fa-cubes", color: "from-lime-500 to-green-600" },
+            { id: 10, title: "10. ترتيب الحروف", subtitle: "Word Unscramble", icon: "fa-arrow-down-a-z", color: "from-fuchsia-500 to-pink-600" }
+        ];
+
+        // Render Dashboard Cards
+        function renderDashboard() {
+            const grid = document.getElementById('games-grid');
+            grid.innerHTML = gamesList.map(g => `
+                <div onclick="launchGame(${g.id})" class="game-card bg-white rounded-2xl p-5 border border-slate-100 shadow-sm cursor-pointer flex flex-col justify-between group">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr ${g.color} text-white flex items-center justify-center text-xl shadow-md group-hover:scale-110 transition">
+                            <i class="fa-solid ${g.icon}"></i>
+                        </div>
+                        <span class="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-full font-bold">تفاعلي</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg group-hover:text-sky-600 transition">${g.title}</h3>
+                        <p class="text-slate-400 font-english text-sm font-semibold">${g.subtitle}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-xs text-sky-600 font-bold">
+                        <span>إبدأ اللعب</span>
+                        <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('game-container').classList.add('hidden');
+            document.getElementById('nav-dash-btn').classList.add('hidden');
+        }
+
+        function launchGame(gameId) {
+            document.getElementById('dashboard').classList.add('hidden');
+            const container = document.getElementById('game-container');
+            container.classList.remove('hidden');
+            document.getElementById('nav-dash-btn').classList.remove('hidden');
+            
+            // Route to game launcher
+            switch(gameId) {
+                case 1: initGame1(); break;
+                case 2: initGame2(); break;
+                case 3: initGame3(); break;
+                case 4: initGame4(); break;
+                case 5: initGame5(); break;
+                case 6: initGame6(); break;
+                case 7: initGame7(); break;
+                case 8: initGame8(); break;
+                case 9: initGame9(); break;
+                case 10: initGame10(); break;
+            }
+        }
+
+        // ==========================================
+        // GAME 1: ROLE-PLAY / MIME QUIZ
+        // ==========================================
+        function initGame1() {
+            const questions = [
+                { icon: "fa-person-falling", scene: "سقوط على الأرض مع ألم في الركبة", correct: "fell over", options: ["fell over", "burned hand", "cut with knife"], textEn: "I fell over and hurt my knee." },
+                { icon: "fa-fire-flame-curved text-amber-500", scene: "لمس الشواية الساخنة الاحتراق!", correct: "burned hand", options: ["sore finger", "burned hand", "broken toe"], textEn: "I burned my hand on the barbecue." },
+                { icon: "fa-hand-holding-medical text-rose-500", scene: "جرح الأصبع عند تقطيع الخبز بالسكين", correct: "sore finger", options: ["sore finger", "fell over", "broken knee"], textEn: "I was cutting bread with a knife. It's really sore." }
+            ];
+            let qIndex = 0;
+
+            function renderQ() {
+                const q = questions[qIndex];
+                const container = document.getElementById('game-container');
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto text-center space-y-6">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <h2 class="font-bold text-sky-600 flex items-center gap-2"><i class="fa-solid fa-masks-theater"></i> لعبة التمثيل والمشاعر</h2>
+                            <span class="text-xs bg-sky-100 text-sky-700 font-bold px-3 py-1 rounded-full">السؤال ${qIndex + 1} من ${questions.length}</span>
+                        </div>
+                        <div class="bg-sky-50 rounded-2xl p-8 border border-sky-100 flex flex-col items-center">
+                            <i class="fa-solid ${q.icon} text-7xl mb-4 text-sky-600 animate-bounce"></i>
+                            <p class="text-lg font-bold text-slate-700">${q.scene}</p>
+                            <button onclick="speak('${q.textEn}')" class="mt-3 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-600 shadow-sm border border-sky-200 flex items-center gap-2">
+                                <i class="fa-solid fa-volume-high"></i> استمع للموقف بالجملة
+                            </button>
+                        </div>
+                        <p class="text-sm font-bold text-slate-500">اختر الفعل أو الحالة المناسبة بالإنجليزية:</p>
+                        <div class="grid grid-cols-1 gap-3">
+                            ${q.options.map(opt => `
+                                <button onclick="checkG1('${opt}')" class="bg-white hover:bg-sky-500 hover:text-white border-2 border-slate-200 hover:border-sky-500 font-english font-bold text-xl py-3 px-6 rounded-2xl transition shadow-sm flex items-center justify-between">
+                                    <span>${opt}</span>
+                                    <i class="fa-solid fa-volume-low opacity-50 hover:opacity-100" onclick="event.stopPropagation(); speak('${opt}')"></i>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.checkG1 = function(answer) {
+                const q = questions[qIndex];
+                if (answer === q.correct) {
+                    addStars(2);
+                    speak("Great Job! " + q.correct);
+                    qIndex++;
+                    if (qIndex < questions.length) {
+                        setTimeout(renderQ, 1000);
+                    } else {
+                        showWinScreen("أحسنت! أكملت لعبة التخمين بنجاح!", initGame1);
+                    }
+                } else {
+                    playSfx('wrong');
+                    speak("Try again");
+                }
+            };
+
+            renderQ();
+        }
+
+        // ==========================================
+        // GAME 2: DOCTOR & PATIENTS MATCHING
+        // ==========================================
+        function initGame2() {
+            const patients = [
+                { name: "Connor", arName: "كونور", injury: "knee", arInjury: "ركبة مصابة", text: "hurt my knee" },
+                { name: "David", arName: "ديفيد", injury: "finger", arInjury: "أصبع يؤلم", text: "sore finger" },
+                { name: "Oliver", arName: "أوليفير", injury: "elbow", arInjury: "مرفق مصاب", text: "elbow" },
+                { name: "Liam", arName: "ليام", injury: "toe", arInjury: "أصبع القدم مكسور", text: "broken toe" },
+                { name: "Mark", arName: "مارك", injury: "hand", arInjury: "يد محروقة", text: "burned hand" }
+            ];
+
+            let selectedPatient = null;
+            let matchedCount = 0;
+
+            const container = document.getElementById('game-container');
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="text-center max-w-lg mx-auto">
+                        <h2 class="text-2xl font-black text-slate-800 mb-1">عالم الطبيب والمرضى 🩺</h2>
+                        <p class="text-sm text-slate-500">صل كل شخصية باسمها بالإصابة الصحيحة</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <!-- Patients List -->
+                        <div class="space-y-3">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">1. اختر الشخصية:</h3>
+                            <div class="space-y-2" id="patient-list">
+                                ${patients.map((p, idx) => `
+                                    <button id="p-btn-${idx}" onclick="selectPatient(${idx})" class="w-full bg-white hover:bg-sky-50 border-2 border-slate-200 p-3 rounded-2xl flex items-center justify-between transition font-bold">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-english text-lg font-bold">${p.name[0]}</div>
+                                            <div class="text-right">
+                                                <div class="font-english text-slate-800">${p.name}</div>
+                                                <div class="text-xs text-slate-400 font-normal">${p.arName}</div>
+                                            </div>
+                                        </div>
+                                        <i class="fa-solid fa-chevron-left text-slate-300"></i>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Injuries List -->
+                        <div class="space-y-3">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">2. اختر الإصابة/العضو المطابق:</h3>
+                            <div class="space-y-2" id="injury-list">
+                                ${[...patients].sort(() => Math.random() - 0.5).map((p, idx) => `
+                                    <button id="inj-btn-${p.injury}" onclick="matchInjury('${p.injury}')" class="w-full bg-white hover:bg-emerald-50 border-2 border-slate-200 p-3 rounded-2xl flex items-center justify-between transition font-bold">
+                                        <span class="font-english text-emerald-700 text-lg">${p.injury} (${p.arInjury})</span>
+                                        <i class="fa-solid fa-kit-medical text-emerald-400"></i>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            window.selectPatient = function(idx) {
+                patients.forEach((_, i) => {
+                    const btn = document.getElementById(`p-btn-${i}`);
+                    if(btn) btn.classList.remove('border-sky-500', 'bg-sky-100');
+                });
+                selectedPatient = patients[idx];
+                speak(selectedPatient.name);
+                const btn = document.getElementById(`p-btn-${idx}`);
+                if(btn) btn.classList.add('border-sky-500', 'bg-sky-100');
+            };
+
+            window.matchInjury = function(injuryKey) {
+                if (!selectedPatient) {
+                    alert('اختر شخصية أولاً من القائمة الجانبية!');
+                    return;
+                }
+                if (selectedPatient.injury === injuryKey) {
+                    addStars(2);
+                    speak(`${selectedPatient.name} has a hurt ${selectedPatient.injury}`);
+                    
+                    // Disable buttons
+                    const pIdx = patients.findIndex(p => p.name === selectedPatient.name);
+                    const pBtn = document.getElementById(`p-btn-${pIdx}`);
+                    const injBtn = document.getElementById(`inj-btn-${injuryKey}`);
+                    
+                    if (pBtn) {
+                        pBtn.disabled = true;
+                        pBtn.className = "w-full bg-slate-100 border-2 border-emerald-400 p-3 rounded-2xl flex items-center justify-between opacity-60";
+                    }
+                    if (injBtn) {
+                        injBtn.disabled = true;
+                        injBtn.className = "w-full bg-slate-100 border-2 border-emerald-400 p-3 rounded-2xl flex items-center justify-between opacity-60";
+                    }
+
+                    selectedPatient = null;
+                    matchedCount++;
+                    if (matchedCount === patients.length) {
+                        setTimeout(() => showWinScreen("ممتاز جداً! تشخيص طبي متكامل لجميع الشخصيات!", initGame2), 800);
+                    }
+                } else {
+                    playSfx('wrong');
+                    speak("Incorrect match");
+                }
+            };
+        }
+
+        // ==========================================
+        // GAME 3: MEMORY CARD MATCHING GAME
+        // ==========================================
+        function initGame3() {
+            const cardsData = [
+                { word: "soap", ar: "صابون" },
+                { word: "water", ar: "ماء" },
+                { word: "pharmacy", ar: "صيدلية" },
+                { word: "medicine", ar: "دواء" },
+                { word: "bandage", ar: "ضماذة" },
+                { word: "knife", ar: "سكين" }
+            ];
+
+            let deck = [];
+            cardsData.forEach((item, id) => {
+                deck.push({ id, type: 'en', val: item.word });
+                deck.push({ id, type: 'ar', val: item.ar, pairVal: item.word });
+            });
+            deck.sort(() => Math.random() - 0.5);
+
+            let flipped = [];
+            let matchedPairs = 0;
+
+            const container = document.getElementById('game-container');
+            container.innerHTML = `
+                <div class="space-y-6 text-center max-w-2xl mx-auto">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 mb-1">لعبة الذاكرة المطابقة 🧠</h2>
+                        <p class="text-sm text-slate-500">اقلب البطاقات لمطابقة الكلمة الإنجليزية بالمعنى العربي</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="memory-grid">
+                        ${deck.map((card, idx) => `
+                            <div onclick="flipCard(${idx})" id="m-card-${idx}" class="card-flip h-24 cursor-pointer">
+                                <div class="card-inner w-full h-full relative rounded-2xl shadow-sm border-2 border-slate-200 bg-white">
+                                    <div class="card-front absolute inset-0 bg-gradient-to-tr from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                                        <i class="fa-solid fa-question"></i>
+                                    </div>
+                                    <div class="card-back absolute inset-0 bg-emerald-50 border-2 border-emerald-400 rounded-2xl flex flex-col items-center justify-center p-2 text-center">
+                                        <span class="font-bold ${card.type === 'en' ? 'font-english text-emerald-700 text-lg' : 'text-slate-700 text-base'}">${card.val}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            window.flipCard = function(idx) {
+                const cardEl = document.getElementById(`m-card-${idx}`);
+                const inner = cardEl.querySelector('.card-inner');
+                
+                if (flipped.length < 2 && !inner.classList.contains('card-flipped')) {
+                    inner.classList.add('card-flipped');
+                    flipped.push({ idx, card: deck[idx] });
+
+                    if (deck[idx].type === 'en') speak(deck[idx].val);
+
+                    if (flipped.length === 2) {
+                        const [c1, c2] = flipped;
+                        if (c1.card.id === c2.card.id) {
+                            // Match!
+                            playSfx('correct');
+                            addStars(2);
+                            matchedPairs++;
+                            flipped = [];
+                            if (matchedPairs === cardsData.length) {
+                                setTimeout(() => showWinScreen("يا لك من عبقري! أنهيت لعبة الذاكرة بنجاح!", initGame3), 800);
+                            }
+                        } else {
+                            // No match
+                            playSfx('wrong');
+                            setTimeout(() => {
+                                document.getElementById(`m-card-${c1.idx}`).querySelector('.card-inner').classList.remove('card-flipped');
+                                document.getElementById(`m-card-${c2.idx}`).querySelector('.card-inner').classList.remove('card-flipped');
+                                flipped = [];
+                            }, 1000);
+                        }
+                    }
+                }
+            };
+        }
+
+        // ==========================================
+        // GAME 4: WHAT'S MISSING?
+        // ==========================================
+        function initGame4() {
+            const items = [
+                { name: "soap", icon: "fa-soap", color: "text-blue-500" },
+                { name: "water", icon: "fa-faucet-drip", color: "text-sky-500" },
+                { name: "pharmacy", icon: "fa-clinic-medical", color: "text-emerald-500" },
+                { name: "medicine", icon: "fa-pills", color: "text-purple-500" },
+                { name: "bandage", icon: "fa-bandage", color: "text-amber-500" }
+            ];
+
+            let missingItem = null;
+            const container = document.getElementById('game-container');
+
+            function startPhase1() {
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto text-center space-y-6">
+                        <h2 class="text-2xl font-black text-slate-800">ما هو العنصر المفقود؟ 👁️</h2>
+                        <p class="text-sm text-slate-500">احفظ العناصر الموجودة في الصينية جيداً قبل أن نختفي أحدها!</p>
+                        
+                        <div class="bg-amber-50 border-4 border-amber-200 rounded-3xl p-6 grid grid-cols-5 gap-3" id="tray">
+                            ${items.map(item => `
+                                <div class="bg-white p-3 rounded-2xl flex flex-col items-center justify-center shadow-sm">
+                                    <i class="fa-solid ${item.icon} text-3xl ${item.color} mb-2"></i>
+                                    <span class="font-english font-bold text-xs text-slate-700">${item.name}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <button onclick="hideRandomItem()" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-2xl transition shadow-md pulse-btn">
+                            جاهز! إخفاء عنصر الآن 🙈
+                        </button>
+                    </div>
+                `;
+            }
+
+            window.hideRandomItem = function() {
+                missingItem = items[Math.floor(Math.random() * items.length)];
+                const remaining = items.filter(i => i.name !== missingItem.name);
+
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto text-center space-y-6 animate-fade-in">
+                        <h2 class="text-2xl font-black text-slate-800">أي عنصر اختفى من الصينية؟ 🤔</h2>
+                        
+                        <div class="bg-amber-50 border-4 border-amber-200 rounded-3xl p-6 grid grid-cols-5 gap-3">
+                            ${remaining.map(item => `
+                                <div class="bg-white p-3 rounded-2xl flex flex-col items-center justify-center shadow-sm">
+                                    <i class="fa-solid ${item.icon} text-3xl ${item.color} mb-2"></i>
+                                    <span class="font-english font-bold text-xs text-slate-700">${item.name}</span>
+                                </div>
+                            `).join('')}
+                            <div class="bg-amber-100/50 border-2 border-dashed border-amber-300 p-3 rounded-2xl flex items-center justify-center text-amber-400 text-2xl font-bold">
+                                ?
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            ${items.map(item => `
+                                <button onclick="guessMissing('${item.name}')" class="bg-white hover:bg-sky-500 hover:text-white border-2 border-slate-200 font-english font-bold text-lg py-3 px-4 rounded-xl transition">
+                                    ${item.name}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            };
+
+            window.guessMissing = function(name) {
+                if (name === missingItem.name) {
+                    addStars(3);
+                    speak("Correct! " + missingItem.name + " was missing!");
+                    showWinScreen(`إجابة رائعة! العنصر المفقود كان (${missingItem.name})`, initGame4);
+                } else {
+                    playSfx('wrong');
+                    speak("Not that one, try again!");
+                }
+            };
+
+            startPhase1();
+        }
+
+        // ==========================================
+        // GAME 5: WORD SEARCH PUZZLE
+        // ==========================================
+        function initGame5() {
+            const gridMatrix = [
+                ['K','N','E','E','S','O','A','P'],
+                ['E','L','B','O','W','X','M','A'],
+                ['B','A','N','D','A','G','E','R'],
+                ['S','O','R me','E','B','U','R','N'],
+                ['P','H','A','R','M','A','C','Y']
+            ];
+            // Cleaning up matrix
+            const grid = [
+                ['K','N','E','E','S','O','A','P'],
+                ['E','L','B','O','W','X','M','O'],
+                ['B','A','N','D','A','G','E','I'],
+                ['S','O','R','E','B','U','R','N'],
+                ['P','H','A','R','M','A','C','Y']
+            ];
+
+            const targetWords = ["KNEE", "ELBOW", "SOAP", "SORE", "BURN", "BANDAGE"];
+            let foundWords = [];
+
+            let selectedCells = [];
+
+            const container = document.getElementById('game-container');
+            container.innerHTML = `
+                <div class="max-w-2xl mx-auto space-y-6 text-center">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800">لعبة البحث عن الكلمات 🔍</h2>
+                        <p class="text-sm text-slate-500">ابحث عن الكلمات المكتوبة في القائمة داخل الشبكة</p>
+                    </div>
+
+                    <!-- Target Words List -->
+                    <div class="flex flex-wrap justify-center gap-2" id="targets-list">
+                        ${targetWords.map(w => `
+                            <span id="target-${w}" class="bg-slate-100 border border-slate-200 font-english font-bold text-slate-700 px-3 py-1 rounded-full text-sm">
+                                ${w}
+                            </span>
+                        `).join('')}
+                    </div>
+
+                    <!-- Grid -->
+                    <div class="bg-sky-50 p-4 rounded-3xl border-2 border-sky-200 inline-block">
+                        <div class="grid grid-cols-8 gap-1.5 font-english font-bold text-lg sm:text-xl" id="search-grid">
+                            ${grid.map((row, r) => row.map((char, c) => `
+                                <button onclick="clickCell(${r}, ${c}, '${char}')" id="cell-${r}-${c}" class="w-9 h-9 sm:w-12 sm:h-12 bg-white hover:bg-sky-100 rounded-xl flex items-center justify-center text-slate-700 shadow-sm border border-slate-200 transition">
+                                    ${char}
+                                </button>
+                            `).join('')).join('')}
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-3">
+                        <button onclick="checkWordSearch()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md">
+                            تأكيد الكلمة المختارة ✓
+                        </button>
+                        <button onclick="resetWordSelection()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-4 rounded-xl transition">
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            window.clickCell = function(r, c, char) {
+                const cellBtn = document.getElementById(`cell-${r}-${c}`);
+                cellBtn.classList.toggle('bg-sky-500');
+                cellBtn.classList.toggle('text-white');
+                
+                const existingIdx = selectedCells.findIndex(cell => cell.r === r && cell.c === c);
+                if (existingIdx > -1) {
+                    selectedCells.splice(existingIdx, 1);
+                } else {
+                    selectedCells.push({ r, c, char });
+                }
+            };
+
+            window.resetWordSelection = function() {
+                selectedCells.forEach(cell => {
+                    const cellBtn = document.getElementById(`cell-${cell.r}-${cell.c}`);
+                    if(cellBtn) {
+                        cellBtn.classList.remove('bg-sky-500', 'text-white');
+                        cellBtn.classList.add('bg-white', 'text-slate-700');
+                    }
+                });
+                selectedCells = [];
+            };
+
+            window.checkWordSearch = function() {
+                const formedWord = selectedCells.map(c => c.char).join('');
+                const revWord = formedWord.split('').reverse().join('');
+
+                let matched = null;
+                if (targetWords.includes(formedWord) && !foundWords.includes(formedWord)) {
+                    matched = formedWord;
+                } else if (targetWords.includes(revWord) && !foundWords.includes(revWord)) {
+                    matched = revWord;
+                }
+
+                if (matched) {
+                    addStars(2);
+                    speak("Found " + matched);
+                    foundWords.push(matched);
+
+                    // Style found target
+                    const targetEl = document.getElementById(`target-${matched}`);
+                    targetEl.className = "bg-emerald-500 text-white font-english font-bold px-3 py-1 rounded-full text-sm line-through";
+
+                    // Lock cells
+                    selectedCells.forEach(cell => {
+                        const cellBtn = document.getElementById(`cell-${cell.r}-${cell.c}`);
+                        cellBtn.className = "w-9 h-9 sm:w-12 sm:h-12 bg-emerald-400 text-white font-english font-bold text-lg sm:text-xl rounded-xl flex items-center justify-center shadow-sm pointer-events-none";
+                    });
+                    selectedCells = [];
+
+                    if (foundWords.length === targetWords.length) {
+                        setTimeout(() => showWinScreen("عظيم جداً! وجدت جميع الكلمات المخبأة!", initGame5), 600);
+                    }
+                } else {
+                    playSfx('wrong');
+                    speak("Try again");
+                    resetWordSelection();
+                }
+            };
+        }
+
+        // ==========================================
+        // GAME 6: DOCTOR'S MISTAKE (TRUE / FALSE)
+        // ==========================================
+        function initGame6() {
+            const challenges = [
+                { statement: "This is my elbow!", imageText: "ركبة 🦵 (Knee)", correctIsTrue: false, audio: "This is my elbow!" },
+                { statement: "I use soap and water to wash hands.", imageText: "غسيل اليدين بالماء والصابون 🧼", correctIsTrue: true, audio: "I use soap and water to wash hands." },
+                { statement: "This is my toe!", imageText: "إصبع القدم 🦶 (Toe)", correctIsTrue: true, audio: "This is my toe!" },
+                { statement: "I went to the pharmacy for medicine.", imageText: "صيدلية ودواء 💊", correctIsTrue: true, audio: "I went to the pharmacy for medicine." }
+            ];
+
+            let index = 0;
+
+            function render() {
+                const item = challenges[index];
+                const container = document.getElementById('game-container');
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto text-center space-y-6">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <h2 class="font-bold text-red-600 flex items-center gap-2"><i class="fa-solid fa-user-doctor"></i> كاشف أخطاء الطبيب</h2>
+                            <span class="text-xs bg-red-100 text-red-700 font-bold px-3 py-1 rounded-full">التحدي ${index + 1} من ${challenges.length}</span>
+                        </div>
+
+                        <div class="bg-red-50 border-2 border-red-100 rounded-3xl p-6 space-y-4">
+                            <div class="text-3xl font-black text-slate-800 font-english">"${item.statement}"</div>
+                            <button onclick="speak('${item.audio}')" class="bg-white text-red-600 font-bold text-xs px-4 py-1.5 rounded-full border border-red-200 inline-flex items-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-volume-high"></i> استمع للعبارة
+                            </button>
+                            <div class="bg-white p-4 rounded-2xl border border-red-100 font-bold text-slate-700 text-lg shadow-inner">
+                                الصورة المعروضة: ${item.imageText}
+                            </div>
+                        </div>
+
+                        <p class="font-bold text-slate-600">هل العبارة المذكورة صحيحة أم خائطة بناءً على الصورة؟</p>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="answerG6(true)" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl py-4 rounded-2xl shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> صحيح True
+                            </button>
+                            <button onclick="answerG6(false)" class="bg-rose-500 hover:bg-rose-600 text-white font-bold text-xl py-4 rounded-2xl shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-circle-xmark"></i> خطأ False
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.answerG6 = function(userChoice) {
+                const item = challenges[index];
+                if (userChoice === item.correctIsTrue) {
+                    addStars(2);
+                    speak("Correct!");
+                    index++;
+                    if (index < challenges.length) {
+                        setTimeout(render, 800);
+                    } else {
+                        showWinScreen("أحسنت كشف جميع أخطاء الطبيب بنجاح!", initGame6);
+                    }
+                } else {
+                    playSfx('wrong');
+                    speak("Oops, incorrect!");
+                }
+            };
+
+            render();
+        }
+
+        // ==========================================
+        // GAME 7: HANGMAN / WORD RESCUE
+        // ==========================================
+        function initGame7() {
+            const wordsList = [
+                { word: "BANDAGE", hint: "تستخدم عند تغطية الجروح" },
+                { word: "KNIFE", hint: "أداة حادة تستخدم لتقطيع الخبز" },
+                { word: "MEDICINE", hint: "تأخذه لتشفى من المرض" }
+            ];
+
+            let currentWordObj = wordsList[Math.floor(Math.random() * wordsList.length)];
+            let guessedLetters = [];
+            let lives = 5;
+
+            function render() {
+                const word = currentWordObj.word;
+                const displayWord = word.split('').map(l => guessedLetters.includes(l) ? l : '_').join(' ');
+
+                const container = document.getElementById('game-container');
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto text-center space-y-6">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <h2 class="font-bold text-purple-600 flex items-center gap-2"><i class="fa-solid fa-life-ring"></i> إنقاذ الكلمة والبالونات</h2>
+                            <div class="flex items-center gap-1">
+                                ${Array(lives).fill(0).map(() => `<i class="fa-solid fa-balloon text-rose-500 text-xl"></i>`).join('')}
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 p-6 rounded-3xl border border-purple-100">
+                            <p class="text-xs font-bold text-purple-600 mb-2 uppercase">تلميح المعنى:</p>
+                            <p class="text-lg font-bold text-slate-800">${currentWordObj.hint}</p>
+                            <div class="text-3xl sm:text-4xl font-english font-black tracking-widest text-purple-700 my-6">
+                                ${displayWord}
+                            </div>
+                        </div>
+
+                        <!-- Keyboard -->
+                        <div class="flex flex-wrap justify-center gap-1.5 max-w-md mx-auto">
+                            ${"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').map(char => `
+                                <button onclick="guessG7('${char}')" ${guessedLetters.includes(char) ? 'disabled' : ''} class="w-9 h-9 sm:w-10 sm:h-10 bg-white hover:bg-purple-500 hover:text-white disabled:bg-slate-200 disabled:text-slate-400 font-english font-bold rounded-xl border border-slate-200 transition">
+                                    ${char}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.guessG7 = function(char) {
+                guessedLetters.push(char);
+                if (currentWordObj.word.includes(char)) {
+                    playSfx('correct');
+                    speak(char);
+                } else {
+                    playSfx('wrong');
+                    lives--;
+                }
+
+                // Check Win
+                const isWon = currentWordObj.word.split('').every(l => guessedLetters.includes(l));
+                if (isWon) {
+                    addStars(3);
+                    speak(currentWordObj.word);
+                    showWinScreen(`يا لك من بطل! أنقذت كلمة (${currentWordObj.word})`, initGame7);
+                } else if (lives <= 0) {
+                    speak("Game Over! Word was " + currentWordObj.word);
+                    showWinScreen(`انتهت محاولاتك! الكلمة كانت: ${currentWordObj.word}`, initGame7);
+                } else {
+                    render();
+                }
+            };
+
+            render();
+        }
+
+        // ==========================================
+        // GAME 8: SIMON SAYS BODY ACTION
+        // ==========================================
+        function initGame8() {
+            const actions = [
+                { isSimon: true, text: "Simon says touch your elbow", bodyPart: "elbow" },
+                { isSimon: false, text: "Touch your knee", bodyPart: "knee" },
+                { isSimon: true, text: "Simon says wash your hands with soap", bodyPart: "hand" },
+                { isSimon: true, text: "Simon says touch your toe", bodyPart: "toe" }
+            ];
+
+            let idx = 0;
+
+            function render() {
+                const act = actions[idx];
+                const container = document.getElementById('game-container');
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto text-center space-y-6">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <h2 class="font-bold text-sky-600 flex items-center gap-2"><i class="fa-solid fa-hand-point-up"></i> سيمون يقول (Simon Says)</h2>
+                            <span class="text-xs bg-sky-100 text-sky-700 font-bold px-3 py-1 rounded-full">الجولة ${idx + 1} من ${actions.length}</span>
+                        </div>
+
+                        <div class="bg-sky-50 rounded-3xl p-8 border-2 border-sky-200 space-y-4">
+                            <div class="w-16 h-16 bg-sky-500 text-white rounded-2xl flex items-center justify-center text-2xl mx-auto shadow-md">
+                                <i class="fa-solid fa-bullhorn"></i>
+                            </div>
+                            <p class="text-2xl font-english font-black text-sky-900">"${act.text}"</p>
+                            <button onclick="speak('${act.text}')" class="bg-white text-sky-600 text-xs font-bold px-4 py-1.5 rounded-full border border-sky-200 inline-flex items-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-volume-high"></i> استمع للأمر
+                            </button>
+                        </div>
+
+                        <p class="font-bold text-slate-600">هل يجب عليك تنفيذ هذا الأمر؟ (تنفيذه فقط إذا بدأ بـ Simon says)</p>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="actG8(true)" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg py-4 rounded-2xl shadow-md transition">
+                                نفذ الحركة! (Do It)
+                            </button>
+                            <button onclick="actG8(false)" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg py-4 rounded-2xl shadow-md transition">
+                                خدعة! لا تنفذ (Ignore)
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.actG8 = function(userDidAction) {
+                const act = actions[idx];
+                if (userDidAction === act.isSimon) {
+                    addStars(2);
+                    speak("Awesome reaction!");
+                    idx++;
+                    if (idx < actions.length) {
+                        setTimeout(render, 800);
+                    } else {
+                        showWinScreen("سرعة بديهة خيالية! أنهيت تحدي سيمون بنجاح!", initGame8);
+                    }
+                } else {
+                    playSfx('wrong');
+                    speak("Oops! Be careful!");
+                }
+            };
+
+            render();
+        }
+
+        // ==========================================
+        // GAME 9: SENTENCE BUILDER / CHAIN GAME
+        // ==========================================
+        function initGame9() {
+            const sentenceData = [
+                {
+                    full: "Remember to wash your hands with soap and water",
+                    words: ["Remember", "to", "wash", "your", "hands", "with", "soap", "and", "water"],
+                    arHint: "تذكر أن تغسل يديك بالماء والصابون"
+                },
+                {
+                    full: "I fell over and hurt my knee",
+                    words: ["I", "fell", "over", "and", "hurt", "my", "knee"],
+                    arHint: "سقطت وأصبت ركبتي"
+                }
+            ];
+
+            let sIndex = 0;
+            let constructed = [];
+
+            function render() {
+                const curr = sentenceData[sIndex];
+                const shuffled = [...curr.words].sort(() => Math.random() - 0.5);
+
+                const container = document.getElementById('game-container');
+                container.innerHTML = `
+                    <div class="max-w-2xl mx-auto text-center space-y-6">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <h2 class="font-bold text-lime-700 flex items-center gap-2"><i class="fa-solid fa-cubes"></i> بناء الجملة الإنجليزية</h2>
+                            <span class="text-xs bg-lime-100 text-lime-800 font-bold px-3 py-1 rounded-full">الجملة ${sIndex + 1} من ${sentenceData.length}</span>
+                        </div>
+
+                        <div class="bg-lime-50 p-4 rounded-2xl border border-lime-200">
+                            <p class="text-xs font-bold text-lime-700">المعنى بالعربية:</p>
+                            <p class="text-lg font-bold text-slate-800">${curr.arHint}</p>
+                        </div>
+
+                        <!-- Target Slot Area -->
+                        <div class="min-h-[70px] bg-white border-2 border-dashed border-lime-300 rounded-2xl p-3 flex flex-wrap gap-2 items-center justify-center" id="drop-area">
+                            ${constructed.map((w, idx) => `
+                                <button onclick="removeWordG9(${idx})" class="bg-lime-500 text-white font-english font-bold px-3 py-1.5 rounded-xl shadow-sm hover:bg-rose-500 transition">
+                                    ${w}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <!-- Word Pool -->
+                        <div class="flex flex-wrap justify-center gap-2">
+                            ${shuffled.map(w => `
+                                <button onclick="addWordG9('${w}')" class="bg-white border-2 border-slate-200 hover:border-lime-500 text-slate-800 font-english font-bold px-3.5 py-2 rounded-xl shadow-sm transition">
+                                    ${w}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <div class="flex justify-center gap-3">
+                            <button onclick="checkG9()" class="bg-lime-600 hover:bg-lime-700 text-white font-bold py-2.5 px-8 rounded-xl shadow-md transition">
+                                التحقق من الجملة ✓
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.addWordG9 = function(word) {
+                constructed.push(word);
+                speak(word);
+                render();
+            };
+
+            window.removeWordG9 = function(idx) {
+                constructed.splice(idx, 1);
+                render();
+            };
+
+            window.checkG9 = function() {
+                const curr = sentenceData[sIndex];
+                if (constructed.join(' ') === curr.full) {
+                    addStars(3);
+                    speak("Perfect! " + curr.full);
+                    sIndex++;
+                    constructed = [];
+                    if (sIndex < sentenceData.length) {
+                        setTimeout(render, 1000);
+                    } else {
+                        showWinScreen("أحسنت تركيب الجمل الإنجليزية بنجاح تام!", initGame9);
+                    }
+                } else {
+                    playSfx('wrong');
+                    speak("Try again");
+                }
+            };
+
+            render();
+        }
+
+        // ==========================================
+        // GAME 10: WORD UNSCRAMBLE
+        // ==========================================
+        function initGame10() {
+            const words = [
+                { scrambled: "k e n e", correct: "knee", ar: "ركبة" },
+                { scrambled: "n k i f e", correct: "knife", ar: "سكين" },
+                { scrambled: "t o e", correct: "toe", ar: "إصبع القدم" },
+                { scrambled: "s o a p", correct: "soap", ar: "صابون" }
+            ];
+
+            let wIdx = 0;
+
+            function render() {
+                const item = words[wIdx];
+                const container = document.getElementById('game-container');
+                container.innerHTML = `
+                    <div class="max-w-md mx-auto text-center space-y-6">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <h2 class="font-bold text-fuchsia-600 flex items-center gap-2"><i class="fa-solid fa-arrow-down-a-z"></i> ترتيب الحروف المبعثرة</h2>
+                            <span class="text-xs bg-fuchsia-100 text-fuchsia-700 font-bold px-3 py-1 rounded-full">${wIdx + 1} من ${words.length}</span>
+                        </div>
+
+                        <div class="bg-fuchsia-50 p-6 rounded-3xl border border-fuchsia-100 space-y-3">
+                            <span class="text-xs font-bold text-fuchsia-600">المعنى بالعربي: ${item.ar}</span>
+                            <div class="text-3xl font-english font-black text-fuchsia-700 tracking-widest uppercase">${item.scrambled}</div>
+                        </div>
+
+                        <input type="text" id="unscramble-input" placeholder="اكتب الكلمة الصحيحة هنا..." class="w-full text-center font-english text-2xl font-bold p-3 border-2 border-slate-200 focus:border-fuchsia-500 rounded-2xl outline-none uppercase shadow-sm">
+
+                        <button onclick="checkG10()" class="w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold py-3 rounded-2xl shadow-md transition">
+                            تحقق الآن ✓
+                        </button>
+                    </div>
+                `;
+            }
+
+            window.checkG10 = function() {
+                const val = document.getElementById('unscramble-input').value.trim().toLowerCase();
+                const item = words[wIdx];
+                if (val === item.correct) {
+                    addStars(2);
+                    speak("Correct! " + item.correct);
+                    wIdx++;
+                    if (wIdx < words.length) {
+                        setTimeout(render, 800);
+                    } else {
+                        showWinScreen("ممتاز جداً! أكملت كتابة جميع الكلمات المبعثرة!", initGame10);
+                    }
+                } else {
+                    playSfx('wrong');
+                    speak("Incorrect spelling");
+                }
+            };
+
+            render();
+        }
+
+        // Win Modal / Screen Component
+        function showWinScreen(message, restartFn) {
+            playSfx('win');
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            const container = document.getElementById('game-container');
+            container.innerHTML = `
+                <div class="max-w-md mx-auto text-center space-y-6 py-8">
+                    <div class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto border-4 border-amber-300 shadow-lg">
+                        <i class="fa-solid fa-trophy animate-bounce"></i>
+                    </div>
+                    <h2 class="text-3xl font-black text-slate-800">تهانينا يا بطل! 🎉</h2>
+                    <p class="text-slate-600 font-bold">${message}</p>
+                    <div class="flex gap-3 justify-center pt-4">
+                        <button onclick="showDashboard()" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-2xl shadow-md transition">
+                            القائمة الرئيسية 🏠
+                        </button>
+                        <button onclick="${restartFn.name}()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-2xl shadow-md transition">
+                            إعادة اللعبة 🔄
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize App Dashboard
+        renderDashboard();
+    </script>
+</body>
+</html>
